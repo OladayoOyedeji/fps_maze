@@ -1,0 +1,23 @@
+ glColor3fv(color[i]);
+                glTranslatef(i, 0, j);
+                glutSolidSphere(0.5, 20, 20);
+                std::cout << Wall(Cell(i, j), Cell(i+1, j)) << ' ' << Wall(Cell(i, j), Cell(i, j+1)) << std::endl;
+                glTranslatef(-0.5, 0, 0);
+                
+                if (punched_walls.find(Wall(Cell(i, j), Cell(i+1, j))) == punched_walls.end())
+                {
+                    //if ((i != 0 || j != 1) && (i != 0 || j != 1) && (i != 0 || j != 2) && (i != 1 || j != 0))
+                        draw_wall(1); std::cout << "draw ";
+                }
+                else
+                    std::cout << "not draw ";
+                
+                glRotatef(90, 0, 1, 0);
+                glTranslatef(0.5, 0, 0.5);
+                if (punched_walls.find(Wall(Cell(i, j), Cell(i, j+1))) == punched_walls.end())
+                {
+                    draw_wall(1); std::cout << "draw";
+                }
+                else
+                    std::cout << "not draw";
+                std::cout << std::endl;
