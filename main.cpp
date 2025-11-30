@@ -1,25 +1,15 @@
-#include <cmath>
-#include <iostream>
-#include <GL/freeglut.h>
-#include "gl3d.h"
-#include "View.h"
-#include "SingletonView.h"
-#include "Keyboard.h"
-#include "Reshape.h"
-#include "Material.h"
-#include "Light.h"
-#include "Maze.h"
-#include <unordered_set>
-
+#include "Function.h"
+#include "GameObject.h"
+ 
 mygllib::Light light;
 GLfloat light_model_ambient[] = {1.0, 1.0, 1.0, 1.0};
 int y_axis_angle = 0;
 
 float wall_height = 3;
-int n = 10;
+const int n = 20;
 struct WallHash {
     size_t operator()(const Wall& w) const {
-        // Combine the 4 integers
+        // Combine the 4 integers 
         size_t h1 = std::hash<int>()(w.c0.r_);
         size_t h2 = std::hash<int>()(w.c0.c_);
         size_t h3 = std::hash<int>()(w.c1.r_);
@@ -27,15 +17,23 @@ struct WallHash {
 
         return (((h1 * 31) ^ h2) * 31 ^ h3) * 31 ^ h4;
     }
-};
+}; 
 std::unordered_set< Wall, WallHash > punched_walls;
+std::stack< glm::vec2 > path;
+Cell * Map[n][n];
+
+GameObject person(0, 10, 0, 1, 1, 1, 0, 0, 0, 1, 0, 1);
+Body body(0, 1.5, 0);
+Body body1(10, 1.5, 5);
 
 void init()
 {
     mygllib::View & view = *(mygllib::SingletonView::getInstance());
-    view.eyex() = 0.1f;
-    view.eyey() = 7.5f;
-    view.eyez() = 0.0f;
+    view.eye(person.x_, person.y_ + 2, person.z_);
+    float refx = person.dir_[0] + person.x_;
+    float refy = person.dir_[1] + person.y_;
+    float refz = person.dir_[2] + person.z_;
+    view.ref(refx, refy, refz);
     view.zNear() = 0.1f;
     view.lookat();    
 
@@ -46,26 +44,52 @@ void init()
 
     std::vector<Wall> p_w = build_maze(n, 0, 2);
 
+    // for (int i = 0; i < n; ++i )
+    // {
+    //     for (int j = 0; j < n; j++)
+    //     {
+    //         Map[i][j] = new Cell(i, j);
+    //     } 
+    // }
+    
     for (int i = 0; i < p_w.size(); ++i)
     {
-        if (punched_walls.find(p_w[i]) != punched_walls.end())
-        {
-            auto p = punched_walls.find(p_w[i]);
-            std::cout << *p << ' ' << p_w[i] << ' ' << (*p==p_w[i]) << std::endl;
-        }
+        //  std::cout << "start? " << i  << std::endl;
         punched_walls.insert(p_w[i]);
-        punched_walls.insert(Wall(p_w[i].c1, p_w[i].c0));
+        // std::cout << "mid? "  << std::endl;
+        // std::cout << p_w[i] << std::endl;
+        Wall w = Wall(p_w[i].c1, p_w[i].c0);
+        // std::cout << w << std::endl;
+        punched_walls.insert(w);
+        // std::cout << "end? "  << std::endl;
+        // Map[p_w[i].c1.r_][p_w[i].c1.c_]->open_neigbhors_.push_back(Map[p_w[i].c0.r_][p_w[i].c0.c_]);
+        // Map[p_w[i].c0.r_][p_w[i].c0.c_]->open_neigbhors_.push_back(Map[p_w[i].c1.r_][p_w[i].c1.c_]);
     }
-    std::cout << std::endl;
-    for (auto p: punched_walls)
-    {
-        std::cout << p << std::endl;
-    }
-    std::cout << "punched size: " << punched_walls.size() << std::endl;
-    
-    std::cout<< "p_w_size: " << p_w.size() << std::endl;
-    
+
+    // for (int i = 0; i < n; ++i)
+    // {
+    //     for (int j = 0; j < n; ++j)
+    //     {
+    //         Cell * p = Map[i][j]; 
+    //         std::cout << *(Map[i][j]) << "->";
+    //         std::string delim = "(";
+    //         for (int k = 0; k < n; ++k)
+    //         {
+    //             std::cout << delim << p->open_neigbhors_[k]; 
+    //             delim = ", "; 
+    //         }
+    //         std::cout << ")\n"
+    //     } 
+    // };;
+     
     print_maze(n, p_w);
+    path.push(glm::vec2(9, 4));
+    path.push(glm::vec2(6, 4));
+    path.push(glm::vec2(6, 3));
+    path.push(glm::vec2(2, 3));
+    // std::cout << "where do you wan him to go: ";
+    // std::cin >> x_des >> y_des;
+    
     glEnable(GL_DEPTH_TEST);
     glShadeModel(GL_SMOOTH);
     glEnable(GL_NORMALIZE);
@@ -92,65 +116,70 @@ void display()
     mygllib::draw_axes();
     mygllib::draw_xz_plane();
     mygllib::Light::all_on();
-
+ 
     glColor3f(0.0f, 0.0f, 0.0f);
     // glDisable(GL_LIGHTING);
     // mygllib::draw_axes();
     // mygllib::draw_xz_plane();//-500, 500, -500, 500, 10, 10);
-
-    float color[][3] = {{1, 0, 1}, {0, 1, 0}, {0, 0, 0}, {1, 1, 1}, {0, 0, 1}};
-    glPushMatrix();
-    glRotatef(180, 1, 0, 0);
-    for (int i = 0; i < n; ++i)
-    {
-        for (int j = 0; j < n; ++j)
-        {
-            glPushMatrix();
-            {
+ 
+    
+     
+    //float color[][3] = {{1, 0, 1}, {0, 1, 0}, {0, 0, 0}, {1, 1, 1}, {0, 0, 1}};
+    
+    person.draw_object();
+    body.draw_object();
+    body1.draw_object();
+    // glPushMatrix();
+    // glTranslatef(-10, 1.5, -10);
+    // glScalef(5, 1, 5); 
+    // for (int i = 0; i < n; ++i)
+    // {
+    //     for (int j = 0; j < n; ++j)
+    //     {
+    //         glPushMatrix(); 
+    //         {
                 
-               glTranslatef(i, 0, j);
-               glutSolidSphere(0.5, 20, 20);
-               glTranslatef(0.5, 0, 0);
-               auto p = punched_walls.find(Wall(Cell(i, j), Cell(i+1, j)));
-               std::cout << (punched_walls.find(Wall(Cell(i, j), Cell(i+1, j))) == punched_walls.end())
-                         << ' ' << Wall(Cell(i, j), Cell(i+1, j)) << ' '
-                         << ( Wall(Cell(i, j), Cell(i+1, j)) == Wall(Cell(i+1, j), Cell(i, j))) << std::endl;
-               if (punched_walls.find(Wall(Cell(i, j), Cell(i+1, j))) == punched_walls.end())
-               {
-                   draw_wall(1);
-               }
+    //            glTranslatef(i, 0, j);
                
-               glRotatef(90, 0, 1, 0);
-               glTranslatef(-0.5, 0, -0.5);
-               if (punched_walls.find(Wall(Cell(i, j), Cell(i, j+1))) == punched_walls.end())
-               {
-                   draw_wall(1);
-               }  
-            }
-            glPopMatrix();
-        }
-        // glPushMatrix();
-        // {
-        //     glTranslatef(i, 0, n);
-        //     glRotatef(90, 0, 1, 0);
-        //     glTranslatef(0.5, 0, 0);
-        //     draw_wall(1);
-        // }
-        // glPopMatrix();
-        // glPushMatrix();
-        // {
-        //     glTranslatef(n, 0, i);
-        //     // glRotatef(90, 0, 1, 0);
-        //     // glTranslatef(0.25, 0, 0.25);
-        //     glTranslatef(-0.5, 0, 0);
-        //     draw_wall(1);
-        // }
-        // glPopMatrix();
-    }
-    glPopMatrix();
+    //            glTranslatef(0.5, 0, 0);
+               
+               
+    //            if (punched_walls.find(Wall(Cell(i, j), Cell(i+1, j))) == punched_walls.end())
+    //            {
+    //                 draw_wall(1); 
+    //            }
+               
+    //            glRotatef(90, 0, 1, 0);
+    //            glTranslatef(-0.5, 0, -0.5);
+    //            if (punched_walls.find(Wall(Cell(i, j), Cell(i, j+1))) == punched_walls.end())
+    //            {
+    //                draw_wall(1); 
+    //            }  
+    //         }
+    //         glPopMatrix();
+    //     }
+    //     // glPushMatrix();
+    //     // {
+    //     //     glTranslatef(i, 0, n); 
+    //     //     glRotatef(90, 0, 1, 0);
+    //     //     glTranslatef(0.5, 0, 0);
+    //     //     draw_wall(1);
+    //     // }
+    //     // glPopMatrix();
+    //     // glPushMatrix();
+    //     // {
+    //     //     glTranslatef(n, 0, i);
+    //     //     // glRotatef(90, 0, 1, 0);
+    //     //     // glTranslatef(0.25, 0, 0.25);
+    //     //     glTranslatef(-0.5, 0, 0);
+    //     //     draw_wall(1);
+    //     // }
+    //     // glPopMatrix();
+    // }
+    // glPopMatrix();
     //std::cout << "\n\n\n\n\n";
     glEnable(GL_LIGHTING);
-    
+   
     // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     // glEnable(GL_COLOR_MATERIAL);
     // glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
@@ -162,28 +191,71 @@ void display()
 void keyboard(unsigned char key, int x, int y)
 {
     mygllib::View & view = *(mygllib::SingletonView::getInstance());
+    // 0:move, 1:pop_path 2:turn_to_dir,
+    static int state = 1;
+    
     switch(key)
     {
-        case 'x': view.eyex() -= 0.1; break;
-        case 'X': view.eyex() += 0.1; break;
-        case 'y': view.eyey() -= 0.1; break;
-        case 'Y': view.eyey() += 0.1; break;
-        case 'z': view.eyez() -= 0.1; break;
-        case 'Z': view.eyez() += 0.1; break;
+        // case 'x': view.eyex() -= 0.1; break;
+        // case 'X': view.eyex() += 0.1; break;
+        // case 'y': view.eyey() -= 0.1; break;
+        // case 'Y': view.eyey() += 0.1; break;
+        // case 'z': view.eyez() -= 0.1; break;
+        // case 'Z': view.eyez() += 0.1; break;
             
-        case 'v': view.fovy() -= 0.1; break;
-        case 'V': view.fovy() += 0.1; break;            
-        case 'a': view.aspect() -= 0.1; break;
-        case 'A': view.aspect() += 0.1; break;
-        case 'n': view.zNear() -= 0.1; break;
-        case 'N': view.zNear() += 0.1; break;
-        case 'f': view.zFar() -= 0.1; break;
-        case 'F': view.zFar() += 0.1; break;
-
-        
+        // case 'v': view.fovy() -= 0.1; break;
+        // case 'V': view.fovy() += 0.1; break;            
+        // case 'a': view.aspect() -= 0.1; break;
+        // case 'A': view.aspect() += 0.1; break;
+        // case 'n': view.zNear() -= 0.1; break;
+        // case 'N': view.zNear() += 0.1; break;
+        // case 'f': view.zFar() -= 0.1; break;
+        // case 'F': view.zFar() += 0.1; break;
+        case 'a': person.look_xz_plane(0.05); break;
+        case 'w': person.look_y_plane(0.1); break;
+        case 's': person.look_y_plane(-0.1); break;
+        case 'd': person.look_xz_plane(-0.05); break;
+        case 'i': person.move_xz_plane(-0.5); break;
+        case 'k': person.move_xz_plane(0.5); break;
+        case 'u':
+            std::cout << "body: " << body.x_ << ' ' << body.z_ << std::endl;
+            std::cout << body.destination_ << std::endl;
+            std::cout << "State: " << state << std::endl;
+            if (state == 0)
+                state = body.automated_movement();
+            else if (state == 1){
+                glm::vec2 dest = path.top();
+                body.update_destination(dest);
+                path.pop();
+                state = 2;
+            }
+            else if (state == 2)
+            { 
+                if (body.turn_to_dest())
+                {
+                    state = 2;
+                } 
+                else
+                {
+                    body.dir_dest();
+                    state = 0;
+                }
+            }
+            // glm::vec2 dest(10, 5);
+            // body.update_destination(dest);
+            // std::cout << "dest: " << body.turn_to_dest() << std::endl;
+            break; 
     }
+    view.eye(person.x_, person.y_+2, person.z_);
+    float refx = person.dir_[0] + person.x_;
+    float refy = person.dir_[1] + person.y_;
+    float refz = person.dir_[2] + person.z_;
+    std::cout << person.dir_[0] << ' ' << person.dir_[1] << ' ' << person.dir_[2] << ' ' << person.z_ << std::endl;
+    view.ref(refx, refy, refz);
+     
+     std::cout << "eye: " << view.eyex() << ' ' << view.eyey() << ' ' << view.eyez() << std::endl;
+    // std::cout << "ref: " << view.refx() << ' ' << view.refy() << ' ' << view.refz() << std::endl;
     // std::cout << view.eyex() << ' ' << view.eyey() << ' ' << view.eyez() << std::endl;
-    
     view.set_projection();
     view.lookat();    
     glutPostRedisplay();
@@ -195,7 +267,7 @@ void specialkeyboard(int key, int x, int y)
     switch (key)
     {
         case GLUT_KEY_UP:
-            view.eyey() += 0.1;
+            view.eyey() += 0.1; 
             view.eyex() -= 0.1;
             view.eyez() -= 0.1;
             break;
@@ -205,8 +277,8 @@ void specialkeyboard(int key, int x, int y)
             view.eyez() += 0.1;
             break;
         case GLUT_KEY_RIGHT:
-            view.eyex() += 0.1;
-            view.eyez() -= 0.1;
+            view.eyex() += 0.1; 
+            view.eyez() -= 0.1; 
             break;
         case GLUT_KEY_LEFT:
             view.eyex() -= 0.1;

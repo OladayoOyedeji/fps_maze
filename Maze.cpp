@@ -30,10 +30,8 @@ std::vector< Wall > build_maze(int n, int r, int c)
         //
         Cell new_cell = cell + d[i];
 
-        std::cout << " (" << cell.r_ << ", " << cell.c_ << ")" << std::endl;
         while (!valid_move(new_cell, n) || VISITED.find(new_cell) != VISITED.end())
         {
-            std::cout << i << " (" << new_cell.r_ << ", " << new_cell.c_ << ")" << std::endl;
             i = (i+3)%4;
             if (i == move) break;
             new_cell = cell + d[i];  

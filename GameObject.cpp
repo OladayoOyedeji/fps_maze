@@ -1,0 +1,176 @@
+#include "GameObject.h"
+
+float rTd = 180 / M_PI;
+
+void draw_cylinder(float radius, float height)
+{
+    //glPushMatrix();
+    GLUquadricObj * p = gluNewQuadric();
+    // SECOND RUN
+    //gluQuadricDrawStyle(p, GLU_LINE);
+    gluQuadricDrawStyle(p, GLU_FILL);
+    int slice_per_ring = 20;
+    int rings = 20;
+    gluCylinder(p, radius, radius, height, slice_per_ring, rings);
+    gluDeleteQuadric(p);
+    //glPopMatrix();
+}
+
+
+float get_angle(float x1, float x2)
+{
+    return atan2(x2,x1) * rTd;
+}
+
+//=============================================================================
+// GameObject:
+//=============================================================================
+GameObject::GameObject(float x, float y, float z)
+    : x_(x), y_(y), z_(z), h_(1), w_(1), l_(1),
+      r_(rand() / RAND_MAX), g_(rand() / RAND_MAX), b_(rand() / RAND_MAX), 
+      dir_(1 , 0, 0)
+{}
+
+GameObject::GameObject(float x, float y, float z,
+           float h, float w, float l,
+           float r, float g, float b,
+           float refx, float refy, float refz)
+    : x_(x), y_(y), z_(z), h_(h), w_(w), l_(l),
+      r_(r), g_(g), b_(b), 
+      dir_((refx - x_), (refy - y), (refz - z_))
+{}
+
+void GameObject::look_xy_plane(float da)//float & refx, float & refy, float da)
+{
+    glm::vec4 d = glm::rotate(da, glm::vec3(0, 0, 1)) * glm::vec4(dir_[0], dir_[1], dir_[2], 1);
+    dir_[0] = d[0];
+    dir_[1] = d[1];
+    dir_[2] = d[2];
+        
+    dir_ = glm::normalize(dir_);
+    // refx = x_ + dir_[0];
+    // refy = y_ + dir_[1];
+}
+
+void GameObject::look_yz_plane(float da)//float & refy, float & refz, float da)
+{
+    glm::vec4 d = glm::rotate(da, glm::vec3(1, 0, 0)) * glm::vec4(dir_[0], dir_[1], dir_[2], 1);
+    dir_[0] = d[0];
+    dir_[1] = d[1];
+    dir_[2] = d[2];
+
+    dir_ = glm::normalize(dir_);
+    // refy = y_ + dir_[1];
+    // refz = z_ + dir_[2];
+}
+
+void GameObject::look_xz_plane(float da)//float & refx, float & refz, float da)
+{
+    std::cout << "before: " << dir_ << std::endl;
+    glm::vec4 d = glm::rotate(da, glm::vec3(0, 1, 0)) * glm::vec4(dir_[0], dir_[1], dir_[2], 1);
+    dir_[0] = d[0];
+    dir_[1] = d[1];
+    dir_[2] = d[2];
+        
+    std::cout << "after: " << dir_ << std::endl;
+    dir_ = glm::normalize(dir_);
+    std::cout << "after: " << dir_ << std::endl;
+    // refx = x_ + dir_[0];
+    // refz = y_ + dir_[2]; 
+}
+void GameObject::look_y_plane(float da)//float & refy, float & refz, float da)
+{
+    glm::vec4 d = glm::rotate(da, glm::vec3(1, 0, 1)) * glm::vec4(dir_[0], dir_[1], dir_[2], 1);
+    dir_[0] = d[0];
+    dir_[1] = d[1];
+    dir_[2] = d[2];
+
+    dir_ = glm::normalize(dir_);
+    // refy = y_ + dir_[1];
+    // refz = z_ + dir_[2];
+}
+void GameObject::move_xz_plane(float dp)
+{
+    x_ += dp * dir_[0];
+    // y_ += dp * dir_[1];
+    z_ += dp * dir_[2];
+}
+void GameObject::draw_object() const
+{
+    float r = (dir_[0] * dir_[0]) + (dir_[1] * dir_[1]) + (dir_[2] * dir_[2]);
+        
+    glPushMatrix();
+    {
+        glTranslatef(x_, y_, z_);
+        std::cout << "angle: " << get_angle(dir_[0], dir_[2]) << std::endl;
+        glRotatef(-get_angle(dir_[0], dir_[2]), 0, 1, 0);
+        glPushMatrix();
+        {
+            glRotatef(90, 0, 1, 0);
+            glTranslatef(0, 1, 0);
+            draw_cylinder(0.1, 0.5);
+        }
+        glPopMatrix();
+        glScalef(w_, h_, l_);
+        glColor3f(r_, g_, b_);;
+        glutSolidCube(1);
+
+        glTranslatef(0, 0, 0.5);
+    }
+    glPopMatrix();
+}
+
+//=============================================================================
+// Body:
+//=============================================================================
+void Body::update_destination(const glm::vec2 & v)
+{
+    destination_[0] = v[0];
+    destination_[1] = v[1];
+
+    glm::vec2 dir_to_dest(destination_[0] - x_, destination_[1] - z_);
+    glm::normalize(dir_to_dest);
+    // dir_[0] = dist[0];
+    // dir_[2] = dist[1];
+    // glm::normalize(dir_);
+    float theta = get_angle(dir_to_dest[0] - dir_[0], dir_to_dest[1] - dir_[2]);
+    da_ = -theta / 1000;
+}
+
+int Body::turn_to_dest()
+{
+    look_xz_plane(da_);
+    std::cout << da_ << std::endl;
+    if (da_ < 0)
+    {
+        return (get_angle(dir_[0], dir_[2]) < get_angle(destination_[0] - x_, destination_[1] - z_));
+    }
+    return (get_angle(dir_[0], dir_[2]) >= get_angle(destination_[0] - x_, destination_[1] - z_));
+}
+
+void Body::dir_dest()
+{
+    dir_[0] = destination_[0]-x_;
+    dir_[2] =  destination_[1]-z_;
+
+    glm::normalize(dir_);
+}
+
+bool Body::automated_movement()
+{
+    // std::cout << x << ' ' << z << std::endl;
+    glm::vec2 dist((destination_[0] - x_), (destination_[1] - z_));
+    std::cout << dist[0] << ' ' << dist[1] << std::endl;
+        
+    std::cout << "length: " << glm::length(dist) << ' ' << w_ << std::endl;
+    if (glm::length(dist) > 0.01)
+    {
+        std::cout << x_ << ' ' << y_ << std::endl;
+        move_xz_plane(0.01);
+        std::cout << x_ << ' ' << y_ << std::endl;
+        return 0;
+    }
+    x_ = destination_[0]; z_ = destination_[1];
+    return 1;
+}
+
