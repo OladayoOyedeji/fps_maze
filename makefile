@@ -16,10 +16,10 @@ OBJS      = mygllib/config.o \
 	    #GameObject.o 
 
 main.exe: $(OBJS)
-	$(LINK) $(OBJS) -o main.exe $(LINKFLAGS)
+	$(LINK) $(OBJS) -o main.exe $(LINKFLAGS); make clean
 
 a asan: $(OBJS)
-	$(LINK) $(OBJS) -g -fsanitize=address -o main.exe $(LINKFLAGS)
+	$(LINK) $(OBJS) -g -fsanitize=address -o main.exe $(LINKFLAGS); make clean
 #------------------------------------------------------------------------------
 # Object files
 #------------------------------------------------------------------------------
@@ -51,6 +51,7 @@ main.o:		main.cpp mygllib/
 r:
 	./main.exe
 clean:
-	rm -f main.exe
+	rm -rf *.o
+	rm -rf mygllib/*.o
 c:
 	rm -f main.exe

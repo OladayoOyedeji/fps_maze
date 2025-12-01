@@ -22,7 +22,7 @@ public:
     void look_xz_plane(float da);
     void look_y_plane(float da);
     void move_xz_plane(float dp);
-    void draw_object() const;
+    void draw_object(float x=1, float y=1, float z=1) const;
     // void collide(GameObject *) = 0;
     
     float x_, y_, z_, w_, h_, l_, r_, g_, b_;
@@ -65,17 +65,59 @@ public:
     float da_;
 };
 
-// class Enemies: public Body
-// {
-//     Enemies(Cell * start_node)
-//         : Body(start_node), start_node_(start_node), state_(1)
-//     {}
-//     Cell * start_node_;
-//     //=======================================================================
-//     // state = 0:move, 1:pop_path 2:turn_to_dir, 3:found_fp, 
-//     //=======================================================================
-//     int state_;
-// };
+class Enemies: public Body
+{
+public:
+    Enemies(int n)
+        : Body(rand() % n, 1.5, rand() % n), node_(NULL), state_(0)
+    {}
+    Enemies(Cell * start_node)
+        : Body(start_node->r_, 0, start_node->c_), node_(start_node->rand_neigbhors()),
+          state_(0)
+    {
+        destination_ = glm::vec2(node_->r_, node_->c_);
+    }
+    void init_node(Cell * node)
+    {
+        std::cout << "here11 " << node << std::endl;;
+        node_ = node->rand_neigbhors();
+        
+        std::cout << "here12\n";
+        destination_ = glm::vec2(node_->r_, node_->c_);
+        dir_ = glm::vec3(destination_[0] - x_, 0, destination_[1] - z_);
+        glm::normalize(dir_);
+    }
+    void run()
+    {
+        std::cout << state_ << std::endl;
+        if (state_ == 0)
+            state_ = automated_movement();
+        else if (state_ == 1)
+        {
+            glm::vec2 dest(node_->r_, node_->c_);
+            update_destination(dest);
+            node_ = node_->rand_neigbhors();
+            state_ = 2;
+        }
+        else if (state_ == 2)
+        { 
+            if (turn_to_dest())
+            {
+                state_ = 2;
+            } 
+            else
+            {
+                dir_dest();
+                state_ = 0;
+            }
+        }
+    }
+    Cell * node_;
+    //=======================================================================
+    // state = 0:move, 1:pop_path 2:turn_to_dir, 3:found_fp, 
+    //=======================================================================
+    int state_;
+};
 
  float rTd = 180 / M_PI;
 
@@ -143,15 +185,15 @@ void GameObject::look_yz_plane(float da)//float & refy, float & refz, float da)
 
 void GameObject::look_xz_plane(float da)//float & refx, float & refz, float da)
 {
-    std::cout << "before: " << dir_ << std::endl;
+    // std::cout << "before: " << dir_ << std::endl;
     glm::vec4 d = glm::rotate(da, glm::vec3(0, 1, 0)) * glm::vec4(dir_[0], dir_[1], dir_[2], 1);
     dir_[0] = d[0];
     dir_[1] = d[1];
     dir_[2] = d[2];
-        
-    std::cout << "after: " << dir_ << std::endl;
+    
+    // std::cout << "after: " << dir_ << std::endl;
     dir_ = glm::normalize(dir_);
-    std::cout << "after: " << dir_ << std::endl;
+    // std::cout << "after: " << dir_ << std::endl;
     // refx = x_ + dir_[0];
     // refz = y_ + dir_[2]; 
 }
@@ -172,14 +214,15 @@ void GameObject::move_xz_plane(float dp)
     // y_ += dp * dir_[1];
     z_ += dp * dir_[2];
 }
-void GameObject::draw_object() const
+void GameObject::draw_object(float scalex, float scaley, float scalez) const
 {
     float r = (dir_[0] * dir_[0]) + (dir_[1] * dir_[1]) + (dir_[2] * dir_[2]);
         
     glPushMatrix();
     {
         glTranslatef(x_, y_, z_);
-        std::cout << "angle: " << get_angle(dir_[0], dir_[2]) << std::endl;
+        glScalef(scalex, scaley, scalez);
+        // std::cout << "angle: " << get_angle(dir_[0], dir_[2]) << std::endl;
         glRotatef(-get_angle(dir_[0], dir_[2]), 0, 1, 0);
         glPushMatrix();
         {
@@ -189,10 +232,9 @@ void GameObject::draw_object() const
         }
         glPopMatrix();
         glScalef(w_, h_, l_);
-        glColor3f(r_, g_, b_);;
+        glColor3f(r_, g_, b_);
         glutSolidCube(1);
 
-        glTranslatef(0, 0, 0.5);
     }
     glPopMatrix();
 }
@@ -217,7 +259,7 @@ void Body::update_destination(const glm::vec2 & v)
 int Body::turn_to_dest()
 {
     look_xz_plane(da_);
-    std::cout << da_ << std::endl;
+    // std::cout << da_ << std::endl;
     if (da_ < 0)
     {
         return (get_angle(dir_[0], dir_[2]) < get_angle(destination_[0] - x_, destination_[1] - z_));
@@ -235,16 +277,16 @@ void Body::dir_dest()
 
 bool Body::automated_movement()
 {
-    // std::cout << x << ' ' << z << std::endl;
+    //std::cout << x << ' ' << z << std::endl;
     glm::vec2 dist((destination_[0] - x_), (destination_[1] - z_));
-    std::cout << dist[0] << ' ' << dist[1] << std::endl;
+     std::cout << dist[0] << ' ' << dist[1] << std::endl;
         
-    std::cout << "length: " << glm::length(dist) << ' ' << w_ << std::endl;
-    if (glm::length(dist) > 0.01)
+     std::cout << "length: " << glm::length(dist) << ' ' << w_ << std::endl;
+    if (glm::length(dist) > 0.1)
     {
-        std::cout << x_ << ' ' << y_ << std::endl;
-        move_xz_plane(0.01);
-        std::cout << x_ << ' ' << y_ << std::endl;
+         std::cout << x_ << ' ' << y_ << std::endl;
+        move_xz_plane(0.05);
+         std::cout << x_ << ' ' << y_ << std::endl;
         return 0;
     }
     x_ = destination_[0]; z_ = destination_[1];

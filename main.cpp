@@ -22,14 +22,15 @@ std::unordered_set< Wall, WallHash > punched_walls;
 std::stack< glm::vec2 > path;
 Cell * Map[n][n];
 
-GameObject person(0, 10, 0, 1, 1, 1, 0, 0, 0, 1, 0, 1);
+GameObject person(0, 1.5, 0, 1, 1, 1, 0, 0, 0, 1, 0, 1);
 Body body(0, 1.5, 0);
 Body body1(10, 1.5, 5);
+Enemies enemy(n);
 
 void init()
 {
     mygllib::View & view = *(mygllib::SingletonView::getInstance());
-    view.eye(person.x_, person.y_ + 2, person.z_);
+    view.eye(person.x_, person.y_ + 10, person.z_);
     float refx = person.dir_[0] + person.x_;
     float refy = person.dir_[1] + person.y_;
     float refz = person.dir_[2] + person.z_;
@@ -44,13 +45,13 @@ void init()
 
     std::vector<Wall> p_w = build_maze(n, 0, 2);
 
-    // for (int i = 0; i < n; ++i )
-    // {
-    //     for (int j = 0; j < n; j++)
-    //     {
-    //         Map[i][j] = new Cell(i, j);
-    //     } 
-    // }
+    for (int i = 0; i < n; ++i )
+    {
+        for (int j = 0; j < n; j++)
+        {
+            Map[i][j] = new Cell(i, j);
+        } 
+    }
     
     for (int i = 0; i < p_w.size(); ++i)
     {
@@ -62,10 +63,14 @@ void init()
         // std::cout << w << std::endl;
         punched_walls.insert(w);
         // std::cout << "end? "  << std::endl;
-        // Map[p_w[i].c1.r_][p_w[i].c1.c_]->open_neigbhors_.push_back(Map[p_w[i].c0.r_][p_w[i].c0.c_]);
-        // Map[p_w[i].c0.r_][p_w[i].c0.c_]->open_neigbhors_.push_back(Map[p_w[i].c1.r_][p_w[i].c1.c_]);
+        Map[p_w[i].c1.r_][p_w[i].c1.c_]->open_neigbhors_.push_back(Map[p_w[i].c0.r_][p_w[i].c0.c_]);
+        Map[p_w[i].c0.r_][p_w[i].c0.c_]->open_neigbhors_.push_back(Map[p_w[i].c1.r_][p_w[i].c1.c_]);
     }
-
+    int r = enemy.x_;
+    int c = enemy.z_;
+    // std::cout << "hello\n";
+    enemy.init_node(Map[r][c]);
+    // std::cout << "not hello\n";
     // for (int i = 0; i < n; ++i)
     // {
     //     for (int j = 0; j < n; ++j)
@@ -127,57 +132,60 @@ void display()
     //float color[][3] = {{1, 0, 1}, {0, 1, 0}, {0, 0, 0}, {1, 1, 1}, {0, 0, 1}};
     
     person.draw_object();
-    body.draw_object();
-    body1.draw_object();
-    // glPushMatrix();
-    // glTranslatef(-10, 1.5, -10);
-    // glScalef(5, 1, 5); 
-    // for (int i = 0; i < n; ++i)
-    // {
-    //     for (int j = 0; j < n; ++j)
-    //     {
-    //         glPushMatrix(); 
-    //         {
+    // body.draw_object();
+    // body1.draw_object();
+    glPushMatrix();
+    glTranslatef(-10, 1.5, -10);
+    glScalef(5, 1, 5);
+    enemy.draw_object(float(1)/5, 1, float(1)/5);
+    
+    for (int i = 0; i < n; ++i)
+    {
+        for (int j = 0; j < n; ++j)
+        {
+            glPushMatrix(); 
+            {
                 
-    //            glTranslatef(i, 0, j);
+               glTranslatef(i, 0, j);
+
+               // glutSolidSphere(0.5, 20, 20);
+               glTranslatef(0.5, 0, 0);
                
-    //            glTranslatef(0.5, 0, 0);
                
+               if (punched_walls.find(Wall(Cell(i, j), Cell(i+1, j))) == punched_walls.end())
+               {
+                    draw_wall(1); 
+               }
                
-    //            if (punched_walls.find(Wall(Cell(i, j), Cell(i+1, j))) == punched_walls.end())
-    //            {
-    //                 draw_wall(1); 
-    //            }
-               
-    //            glRotatef(90, 0, 1, 0);
-    //            glTranslatef(-0.5, 0, -0.5);
-    //            if (punched_walls.find(Wall(Cell(i, j), Cell(i, j+1))) == punched_walls.end())
-    //            {
-    //                draw_wall(1); 
-    //            }  
-    //         }
-    //         glPopMatrix();
-    //     }
-    //     // glPushMatrix();
-    //     // {
-    //     //     glTranslatef(i, 0, n); 
-    //     //     glRotatef(90, 0, 1, 0);
-    //     //     glTranslatef(0.5, 0, 0);
-    //     //     draw_wall(1);
-    //     // }
-    //     // glPopMatrix();
-    //     // glPushMatrix();
-    //     // {
-    //     //     glTranslatef(n, 0, i);
-    //     //     // glRotatef(90, 0, 1, 0);
-    //     //     // glTranslatef(0.25, 0, 0.25);
-    //     //     glTranslatef(-0.5, 0, 0);
-    //     //     draw_wall(1);
-    //     // }
-    //     // glPopMatrix();
-    // }
-    // glPopMatrix();
-    //std::cout << "\n\n\n\n\n";
+               glRotatef(90, 0, 1, 0);
+               glTranslatef(-0.5, 0, -0.5);
+               if (punched_walls.find(Wall(Cell(i, j), Cell(i, j+1))) == punched_walls.end())
+               {
+                   draw_wall(1); 
+               }  
+            }
+            glPopMatrix();
+        }
+        // glPushMatrix();
+        // {
+        //     glTranslatef(i, 0, n); 
+        //     glRotatef(90, 0, 1, 0);
+        //     glTranslatef(0.5, 0, 0);
+        //     draw_wall(1);
+        // }
+        // glPopMatrix();
+        // glPushMatrix();
+        // {
+        //     glTranslatef(n, 0, i);
+        //     // glRotatef(90, 0, 1, 0);
+        //     // glTranslatef(0.25, 0, 0.25);
+        //     glTranslatef(-0.5, 0, 0);
+        //     draw_wall(1);
+        // }
+        // glPopMatrix();
+    }
+    glPopMatrix();
+    // std::cout << "\n\n\n\n\n";
     glEnable(GL_LIGHTING);
    
     // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -218,42 +226,20 @@ void keyboard(unsigned char key, int x, int y)
         case 'i': person.move_xz_plane(-0.5); break;
         case 'k': person.move_xz_plane(0.5); break;
         case 'u':
-            std::cout << "body: " << body.x_ << ' ' << body.z_ << std::endl;
-            std::cout << body.destination_ << std::endl;
-            std::cout << "State: " << state << std::endl;
-            if (state == 0)
-                state = body.automated_movement();
-            else if (state == 1){
-                glm::vec2 dest = path.top();
-                body.update_destination(dest);
-                path.pop();
-                state = 2;
-            }
-            else if (state == 2)
-            { 
-                if (body.turn_to_dest())
-                {
-                    state = 2;
-                } 
-                else
-                {
-                    body.dir_dest();
-                    state = 0;
-                }
-            }
+            enemy.run();
             // glm::vec2 dest(10, 5);
             // body.update_destination(dest);
             // std::cout << "dest: " << body.turn_to_dest() << std::endl;
             break; 
     }
-    view.eye(person.x_, person.y_+2, person.z_);
+    view.eye(person.x_, person.y_+10, person.z_);
     float refx = person.dir_[0] + person.x_;
     float refy = person.dir_[1] + person.y_;
     float refz = person.dir_[2] + person.z_;
-    std::cout << person.dir_[0] << ' ' << person.dir_[1] << ' ' << person.dir_[2] << ' ' << person.z_ << std::endl;
+    // std::cout << person.dir_[0] << ' ' << person.dir_[1] << ' ' << person.dir_[2] << ' ' << person.z_ << std::endl;
     view.ref(refx, refy, refz);
      
-     std::cout << "eye: " << view.eyex() << ' ' << view.eyey() << ' ' << view.eyez() << std::endl;
+    // std::cout << "eye: " << view.eyex() << ' ' << view.eyey() << ' ' << view.eyez() << std::endl;
     // std::cout << "ref: " << view.refx() << ' ' << view.refy() << ' ' << view.refz() << std::endl;
     // std::cout << view.eyex() << ' ' << view.eyey() << ' ' << view.eyez() << std::endl;
     view.set_projection();
