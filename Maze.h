@@ -6,12 +6,29 @@
 #include <set>
 #include <vector>
 
+// struct WallHash {
+//     size_t operator()(const Wall& w) const {
+//         // Combine the 4 integers 
+//         size_t h1 = std::hash<int>()(w.c0.r_);
+//         size_t h2 = std::hash<int>()(w.c0.c_);
+//         size_t h3 = std::hash<int>()(w.c1.r_);
+//         size_t h4 = std::hash<int>()(w.c1.c_);
+
+//         return (((h1 * 31) ^ h2) * 31 ^ h3) * 31 ^ h4;
+//     }
+// };
+
 class Cell
 {
 public:
     Cell(int r = 0, int c = 0)
-        : r_(r), c_(c), open_neigbhors_(0)
-    {}
+        : r_(r), c_(c)
+    {
+        // for (int i = 0;  i , 4; ++i)
+        // {
+        //     open_neigbhors_[i] = NULL;
+        // }
+    }
     Cell(const Cell & c)
         : r_(c.r_), c_(c.c_)
     {}
@@ -47,8 +64,8 @@ public:
     }
     int r_, c_;
 
-    std::vector< Cell * > open_neigbhors_;
-    //Cell ** open_neigbhors_;
+    //Cell * open_neigbhors_[4];
+    std::vector<Cell *> open_neigbhors_;
 };
 
 
@@ -88,6 +105,18 @@ public:
     }
     Cell c0, c1;
 };
+
+// class MazeMap
+// {
+//     MazeMap(int n);
+//     void print_maze();
+//     void draw_maze()
+//     {
+        
+//     }
+    
+//     std::unordered_set< Wall, WallHash > punched_walls;
+// };
 
 inline
 std::ostream & operator<<(std::ostream & cout, const Wall & w)

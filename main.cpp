@@ -122,7 +122,7 @@ void display()
     mygllib::draw_xz_plane();
     mygllib::Light::all_on();
  
-    glColor3f(0.0f, 0.0f, 0.0f);
+    glColor3f(1.0f, 0.0f, 0.0f);
     // glDisable(GL_LIGHTING);
     // mygllib::draw_axes();
     // mygllib::draw_xz_plane();//-500, 500, -500, 500, 10, 10);
@@ -202,36 +202,58 @@ void keyboard(unsigned char key, int x, int y)
     // 0:move, 1:pop_path 2:turn_to_dir,
     static int state = 1;
     
-    switch(key)
-    {
-        // case 'x': view.eyex() -= 0.1; break;
-        // case 'X': view.eyex() += 0.1; break;
-        // case 'y': view.eyey() -= 0.1; break;
-        // case 'Y': view.eyey() += 0.1; break;
-        // case 'z': view.eyez() -= 0.1; break;
-        // case 'Z': view.eyez() += 0.1; break;
+    // switch(key)
+    // {
+    //     // case 'x': view.eyex() -= 0.1; break;
+    //     // case 'X': view.eyex() += 0.1; break;
+    //     // case 'y': view.eyey() -= 0.1; break;
+    //     // case 'Y': view.eyey() += 0.1; break;
+    //     // case 'z': view.eyez() -= 0.1; break;
+    //     // case 'Z': view.eyez() += 0.1; break;
             
-        // case 'v': view.fovy() -= 0.1; break;
-        // case 'V': view.fovy() += 0.1; break;            
-        // case 'a': view.aspect() -= 0.1; break;
-        // case 'A': view.aspect() += 0.1; break;
-        // case 'n': view.zNear() -= 0.1; break;
-        // case 'N': view.zNear() += 0.1; break;
-        // case 'f': view.zFar() -= 0.1; break;
-        // case 'F': view.zFar() += 0.1; break;
-        case 'a': person.look_xz_plane(0.05); break;
-        case 'w': person.look_y_plane(0.1); break;
-        case 's': person.look_y_plane(-0.1); break;
-        case 'd': person.look_xz_plane(-0.05); break;
-        case 'i': person.move_xz_plane(-0.5); break;
-        case 'k': person.move_xz_plane(0.5); break;
-        case 'u':
-            enemy.run();
-            // glm::vec2 dest(10, 5);
-            // body.update_destination(dest);
-            // std::cout << "dest: " << body.turn_to_dest() << std::endl;
-            break; 
+    //     // case 'v': view.fovy() -= 0.1; break;
+    //     // case 'V': view.fovy() += 0.1; break;            
+    //     // case 'a': view.aspect() -= 0.1; break;
+    //     // case 'A': view.aspect() += 0.1; break;
+    //     // case 'n': view.zNear() -= 0.1; break;
+    //     // case 'N': view.zNear() += 0.1; break;
+    //     // case 'f': view.zFar() -= 0.1; break;
+    //     // case 'F': view.zFar() += 0.1; break;
+    //     case 'a': person.look_xz_plane(0.05); break;
+    //     case 'w': person.look_y_plane(0.1); break;
+    //     case 's': person.look_y_plane(-0.1); break;
+    //     case 'd': person.look_xz_plane(-0.05); break;
+    //     case 'i': person.move_xz_plane(-0.5); break;
+    //     case 'k': person.move_xz_plane(0.5); break;
+    //     case 'u':
+    //         enemy.run();
+    //         // glm::vec2 dest(10, 5);
+    //         // body.update_destination(dest);
+    //         // std::cout << "dest: " << body.turn_to_dest() << std::endl;
+    //         break; 
+    // }
+
+    if (key == 'a')
+    {person.look_xz_plane(0.05);}
+    if (key == 'w')
+    {}
+    if (key == 's')
+    {}
+    if (key == 'd')
+    {person.look_xz_plane(-0.05);}
+    if (key == 'i')
+    {
+        person.move_xz_plane(-0.5);
     }
+    if (key == 'k')
+    {
+        person.move_xz_plane(0.5);
+    }
+    if (key == 'u')
+    {
+        enemy.run();
+    }
+    
     view.eye(person.x_, person.y_+10, person.z_);
     float refx = person.dir_[0] + person.x_;
     float refy = person.dir_[1] + person.y_;
@@ -263,13 +285,9 @@ void specialkeyboard(int key, int x, int y)
             view.eyez() += 0.1;
             break;
         case GLUT_KEY_RIGHT:
-            view.eyex() += 0.1; 
-            view.eyez() -= 0.1; 
-            break;
+            person.look_xz_plane(0.05); break;
         case GLUT_KEY_LEFT:
-            view.eyex() -= 0.1;
-            view.eyez() += 0.1;
-            break;
+            person.look_xz_plane(-0.05); break;
     }
     view.set_projection();
     view.lookat();    
