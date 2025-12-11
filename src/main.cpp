@@ -42,7 +42,7 @@ void display()
         {
             // Util::bu
             
-            maze.draw_maze();
+            maze.draw_maze(person.x_, person..z_);
             person.draw_object();
             //enemy.draw_enemy();
             

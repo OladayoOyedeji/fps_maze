@@ -66,13 +66,10 @@ public:
     int move_to_destination()
     {
         glm::vec2 dist((destination_cell_node_->r_ - x_), (destination_cell_node_->c_ - z_));
-        std::cout << dist << ' ' << glm::length(dist) << std::endl;
+        
         if (glm::length(dist) > 0.05)
         {
-            std::cout << x_ << ' ' << y_ << std::endl;
-            std::cout << dir_ << std::endl;
             move_xz_plane(0.05);
-            std::cout << x_ << ' ' << y_ << std::endl;
             return 0;
         }
         
@@ -86,7 +83,6 @@ public:
 
         // 2 states
         // - 0: move to destination
-        std::cout << state_ << std::endl;
         if (state_ == 0)
         {
             state_ = move_to_destination();

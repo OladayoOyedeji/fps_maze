@@ -6,8 +6,7 @@
 void Cell::insert_neigbhor(Cell * c)
 {
     Cell dc = *c + -(*this);
-    std::cout << *c << ' ' << *this << ' ' << dc << std::endl;
-        
+    
     int pos = 0;
     switch (dc.c_)
     {
@@ -28,13 +27,12 @@ void Cell::insert_neigbhor(Cell * c)
         case -1:
             pos = W_;
     }
-    std::cout << pos << std::endl;
+    
     open_neigbhors_[pos] = c;
 }
 
 Cell * Cell::rand_neigbhors(int dr, int dc)
 {
-    std::cout << *this << ' ' << Cell(dr, dc) << std::endl;
     int pos = 0;
     int opp_i;
     switch (dc)
@@ -60,7 +58,7 @@ Cell * Cell::rand_neigbhors(int dr, int dc)
             pos = W_;
             opp_i = E_;
     }
-    std::cout << pos << std::endl;
+   
     int size = 0;
     int j = 0;
     for (int i = 0; i < 4; ++i)
@@ -74,8 +72,6 @@ Cell * Cell::rand_neigbhors(int dr, int dc)
 
     if (size == 1)
     {
-        std::cout << "opposite " << j << std::endl;;
-        std::cout << *open_neigbhors_[j] << std::endl;
         return open_neigbhors_[j];
     }
 
@@ -84,9 +80,6 @@ Cell * Cell::rand_neigbhors(int dr, int dc)
     {
         pos = rand() % 4;
     }
-        
-    std::cout << "left or right or front " << pos << std::endl;
-    std::cout << *open_neigbhors_[j] << std::endl;
     return open_neigbhors_[pos];
             
 }
@@ -214,44 +207,88 @@ void print_maze(int n, const std::vector<Wall> & p)
 
 void Maze::draw_maze(int r, int c)
 {
-    Cell * cell = Map[r][c];
-    std::stack< Wall > & walls;
-    for (int i = 0; i < 4; ++i)
+    if (mode)
     {
-        Cell * next_node = node->neigbhor(i);
-        view_recur(next_node, dc_.r, dc_.c, walls);
-    }
-    glPushMatrix();
-    {
-        glScalef(scalex_, scaley_, scalez_);
-        for (int i = 0; i < walls.size(); ++i)
+        std::cout << "this " << r << ' ' << c << std::endl;
+        r /= scalex_;
+        c /= scalez_;
+        Cell * node = Map[r][c];
+        std::stack< Wall > draw_walls;
+    
+        view_recur(node, 1, 0, draw_walls, 0);
+        view_recur(node, -1, 0, draw_walls, 0);
+        view_recur(node, 0, 1, draw_walls, 0);
+         view_recur(node, 0, -1, draw_walls, 0);
+    
+        glPushMatrix();
         {
-            // std::cout << "drawing wall " << walls[i].c0 << ' ' << walls[i].c1 << std::endl;;
-            walls[i].draw_wall();
+            glScalef(scalex_, scaley_, scalez_);
+            // std::cout << "starting\n";
+            while (!draw_walls.empty())
+            {
+                Wall wall = draw_walls.top();
+                // std::cout << wall << std::endl;
+                wall.draw_wall();
+                draw_walls.pop();
+            }
         }
+        glPopMatrix();
     }
-    glPopMatrix();
+    else
+    {
+    
+        glPushMatrix();
+        {
+            glScalef(scalex_, scaley_, scalez_);
+            // std::cout << "starting\n";
+
+            for (int i = 0; i < walls.size(); ++i)
+            {
+                walls[i].draw_wall();
+            }
+        }
+        glPopMatrix();
+    
+    }
+    
 }
 
-void view_recur(Cell * node, int dr, int dc, std::stack< Wall > & walls)
+void view_recur(Cell * node, int dr, int dc,
+                std::stack< Wall > & walls, int flag)
 {
-    if (node == NULL)
-    {
-        return;
-    }
     for (int i = 0; i < 4; ++i)
     {
+        // std::cout << i << std::endl;
+        Cell c = Cell::diff(i);
+        
+        if (c + Cell(dr, dc) == Cell(0, 0))
+            continue;
+        
         Cell * next_node = node->neigbhor(i);
-        if (next_node != NULL)
+        // std::cout << "next->: " << next_node << std::endl;
+        
+        // std::cout << "nodes: " << *node;
+        // if (next_node != NULL)
+        // {
+        //     std::cout << ' ' << *next_node << ' ';
+        // }
+        // std::cout << *node + c << std::endl;
+        if (next_node == NULL)
         {
-            Cell dc_ = *node - *(next_node);
-            
-            if (dc_.r != dc || dc_.c != -dr)
+            // std::cout << "here?" << std::endl;
+            Cell next_cell = *node + c;
+            walls.push(Wall(*node, next_cell, .2, 3, 1));
+            // std::cout << Wall(*node, next_cell) << std::endl;
+        }
+        else
+        {
+            int flag_ = dr * c.c_  - dc * c.r_;
+            // std::cout << "flag: " << flag_  << " Cells: " << Cell(dr, dc) << ' ' << c << std::endl;
+            if (flag_ != flag || flag_ == 0)
             {
-                walls.push(Wall(*node, *next_node));
-                view_recur(next_node, dc_.r, dc_.c, walls);
+                view_recur(next_node, c.r_, c.c_, walls, flag_);
+                // if ()
             }
-            // if ()
         }
     }
 }

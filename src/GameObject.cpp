@@ -103,7 +103,7 @@ void GameObject::draw_object(float scalex, float scaley, float scalez) const
     {
         glTranslatef(x_, y_, z_);
         glRotatef(-get_angle(dir_[0], dir_[1]), 0, 1, 0);
-        std::cout << scalex << ' ' << scaley << ' ' << scalez << std::endl;
+        
         glScalef(scalex, scaley, scalez);
         // std::cout << x_ << ' ' << z_ << std::endl;
         // std::cout << "angle: " << get_angle(dir_[0], dir_[2]) << std::endl;
@@ -159,7 +159,7 @@ void First_Person::update_eye_ref(mygllib::View & view)
     
     if (bird_eye_)
     {
-        std::cout << "bird eye" << std::endl;
+        
         bird_eyex = 1;
         bird_eyey = 30;
         bird_eyez = 1;
@@ -169,8 +169,6 @@ void First_Person::update_eye_ref(mygllib::View & view)
     }
     else
     {
-        
-        std::cout << "not bird eye" << std::endl;
         bird_eyex = 0;
         bird_eyey = 0;
         bird_eyez = 0;

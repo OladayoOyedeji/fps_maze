@@ -1,7 +1,7 @@
 CXX       = g++
 CXXFLAGS  = -g -Wall -Iinclude -Imygllib
 LDFLAGS   = -lGL -lGLU -lglut
-ASAN = -g -fsanitize=address
+ASAN = -fsanitize=address
 
 SRC       = $(wildcard src/*.cpp) $(wildcard mygllib/*.cpp)
 OBJ       = $(SRC:.cpp=.o)
@@ -13,7 +13,7 @@ $(TARGET): $(OBJ)
 	$(CXX) $(OBJ) $(CXXFLAGS) $(LDFLAGS) -o $@; make clean
 
 a asan:  $(OBJ)
-	$(CXX) $(ASAN) $(OBJ) $(CXXFLAGS) $(LDFLAGS) -o $@; make clean
+	$(CXX) $(OBJ) $(CXXFLAGS) -fsanitize=address $(LDFLAGS) -o $@; make clean
 
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@

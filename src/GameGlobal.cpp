@@ -3,7 +3,7 @@
 
 namespace Global
 {
-    Maze maze(10, 20, 3, 10);
+    Maze maze(10, 10, 3, 10);
     First_Person person;
     Enemies enemy(&maze);
     std::vector<Enemies *> enemies(10);

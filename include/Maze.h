@@ -70,6 +70,45 @@ public:
     {
         return open_neigbhors_[E_];
     }
+    static Cell diff(int i)
+    {
+        switch (i)
+        {
+            case 0:
+                return Cell(-1, 0);
+            case 1:
+                return Cell(1, 0);
+            case 2:
+                return Cell(0, -1);
+            case 3:
+                return Cell(0, 1);
+        }
+        return Cell(0, 0);
+    }
+    int orientation(Cell &dc)
+    {
+        int pos = 0;
+        switch (dc.c_)
+        {
+            case 0:
+                switch (dc.r_)
+                {
+                    case 1:
+                        pos = S_;
+                        break;
+                    case -1:
+                        pos = N_;
+                        break;
+                }
+                break;
+            case 1:
+                pos = E_;
+                break;
+            case -1:
+                pos = W_;
+        }
+        return -1;
+    }
     Cell * neigbhor(int i)
     {
         return open_neigbhors_[i];
@@ -152,7 +191,7 @@ public:
         float r = float(c1.r_ + c0.r_) / 2;
         glPushMatrix();
         {
-            glTranslatef(r, 0, c);
+            glTranslatef(r, 1.5, c);
             // std::cout << r << ' ' << c << std::endl;
             Util::build_wall(w_, h_, l_);
         }
@@ -173,11 +212,12 @@ class Maze
 {
 public:
     Maze(int n=20, float sx=1, float sy=1, float sz=1);
-    void draw_maze();
+    void draw_maze(int r = 0, int c = 0);
     float scalex_;
     float scaley_;
     float scalez_;
     int n_;
+    bool mode;
     Cell *** Map;
     std::vector< Wall > walls;
 };
@@ -195,6 +235,7 @@ public:
 
 std::vector< Wall > build_maze(int n, int r, int c);
 void print_maze(int n, const std::vector<Wall> & p);
-void view_recur(Cell * node, int dr, int dc, std::stack< Wall > & walls);
+void view_recur(Cell * node, int dr, int dc,
+                std::stack< Wall > & walls, int flag);
 
 #endif
