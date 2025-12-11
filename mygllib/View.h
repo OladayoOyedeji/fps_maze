@@ -66,7 +66,7 @@ namespace mygllib
         float   upy() const       { return upy_; }
         float & upz()             { return upz_; }
         float   upz() const       { return upz_; }
-        void    up(float x, float y, float z) { upx_ = x; upy_ = y; upx_ = z; }
+        void    up(float x, float y, float z) { upx_ = x; upy_ = y; upz_ = z; }
         float & fovy()            { return fovy_; }
         float   fovy() const      { return fovy_; }
         float & aspect()          { return aspect_; }

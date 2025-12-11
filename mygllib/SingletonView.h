@@ -12,7 +12,7 @@ namespace mygllib
     class SingletonView
     {
     public:
-        static mygllib::View * getInstance();
+        static View * getInstance();
     private:
         static View * instance_;
     };

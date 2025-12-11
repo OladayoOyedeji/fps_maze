@@ -1,57 +1,25 @@
-# Makefile for mygllib
-# Y. Liow
-#------------------------------------------------------------------------------
-# Macros
-#------------------------------------------------------------------------------
 CXX       = g++
-CXXFLAGS  = -g -Wall
-LINK      = g++
-LINKFLAGS = -lGL -lGLU -lglut -lGLEW
-OBJS      = mygllib/config.o \
-	    mygllib/Reshape.o \
-	    mygllib/View.o \
-	    mygllib/SingletonView.o \
-	    Maze.o \
-	    main.o
-	    #GameObject.o 
+CXXFLAGS  = -g -Wall -Iinclude -Imygllib
+LDFLAGS   = -lGL -lGLU -lglut
+ASAN = -g -fsanitize=address
 
-main.exe: $(OBJS)
-	$(LINK) $(OBJS) -o main.exe $(LINKFLAGS); make clean
+SRC       = $(wildcard src/*.cpp) $(wildcard mygllib/*.cpp)
+OBJ       = $(SRC:.cpp=.o)
+TARGET    = main.exe
 
-a asan: $(OBJS)
-	$(LINK) $(OBJS) -g -fsanitize=address -o main.exe $(LINKFLAGS); make clean
-#------------------------------------------------------------------------------
-# Object files
-#------------------------------------------------------------------------------
-# config.o: config.h config.cpp  
-# 	$(CXX) $(CXXFLAGS) config.cpp -c -o config.o
+all: $(TARGET)
 
-# View.o: View.h View.cpp
-# 	$(CXX) $(CXXFLAGS) View.cpp -c -o View.o
+$(TARGET): $(OBJ)
+	$(CXX) $(OBJ) $(CXXFLAGS) $(LDFLAGS) -o $@; make clean
 
-# SingletonView.o: SingletonView.h SingletonView.cpp
-# 	$(CXX) $(CXXFLAGS) SingletonView.cpp -c -o SingletonView.o
+a asan:  $(OBJ)
+	$(CXX) $(ASAN) $(OBJ) $(CXXFLAGS) $(LDFLAGS) -o $@; make clean
 
-# Reshape.o: Reshape.h Reshape.cpp
-# 	$(CXX) $(CXXFLAGS) Reshape.cpp -c -o Reshape.o
+%.o: %.cpp
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-# Keyboard.o: Keyboard.h Keyboard.cpp
-# 	$(CXX) $(CXXFLAGS) Keyboard.cpp -c -o Keyboard.o
-
-# SingletonView.o: SingletonView.h SingletonView.cpp
-# 	$(CXX) $(CXXFLAGES) SingletonView.cpp -c -o SingletonView.o
-
-main.o:		main.cpp mygllib/
-# Light.h mygllib/gl3d.h mygllib/Viewport.h
-	$(CXX) $(CXXFLAGS) main.cpp -c -o main.o -I mygllib/
-
-#------------------------------------------------------------------------------
-# Utilities
-#------------------------------------------------------------------------------
-r:
+r run:
 	./main.exe
+
 clean:
-	rm -rf *.o
-	rm -rf mygllib/*.o
-c:
-	rm -f main.exe
+	rm -f $(OBJ) #$(TARGET)

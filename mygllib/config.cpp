@@ -7,8 +7,8 @@ namespace mygllib
     // Window position and size
     int WIN_X = 0;
     int WIN_Y = 0;
-    int WIN_W = 400;
-    int WIN_H = 400;
+    int WIN_W = 1200;
+    int WIN_H = 800;
 
     // Window title
     const char * WIN_TITLE = "OpenGL!!!";

@@ -10,7 +10,7 @@ namespace mygllib
               float ambR=0, float ambG=0, float ambB=0, float ambA=1,
               float diffR=1, float diffG=1, float diffB=1, float diffA=1,
               float specR=1, float specG=1, float specB=1, float specA=1,
-              float x=1, float y=0, float z=1, float w=0,
+              float x=0.5, float y=2, float z=1, float w=0,
               float spot_dir_x=0, float spot_dir_y=-1, float spot_dir_z=0,
               float spot_cutoff=45)
             : id_(id), spot_cutoff_(spot_cutoff)
@@ -27,6 +27,7 @@ namespace mygllib
             spot_dir_[0] = spot_dir_x;
             spot_dir_[1] = spot_dir_y;
             spot_dir_[2] = spot_dir_z;
+            set();
         }
 
         float & x()       { return position_[0]; }

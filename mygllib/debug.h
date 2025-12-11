@@ -3,6 +3,7 @@
 #define DEBUG_H
 
 #include <iostream>
+#include <GL/freeglut.h>
 
 namespace mygllib
 {

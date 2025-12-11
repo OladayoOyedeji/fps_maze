@@ -73,12 +73,12 @@ namespace mygllib
     {
         glColor3f(0.5, 0.5, 0.5);
         glBegin(GL_LINES);
-        for (float x = minx; x <= maxx; x += dx)
+        for (float x = minx; x <= maxx; x += 1)
         {
             glVertex3f(x, 0, minz);
             glVertex3f(x, 0, maxz);
         }
-        for (float z = minz; z <= maxz; z += dz)
+        for (float z = minz; z <= maxz; z += 1)
         {
             glVertex3f(minx, 0, z);
             glVertex3f(maxx, 0, z);
