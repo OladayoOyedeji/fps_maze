@@ -31,8 +31,12 @@ namespace Global
         
         // Create texture from image file
         // Or "images/launch.bmp"
+        std::cout << "here" << std::endl;
         Util::load_external_texture(texture[0], "images/rock-taupe.bmp");
+        std::cout << "not here" << std::endl;
         Util::load_external_texture(texture[1], "images/nightSky.bmp");
+        Util::load_external_texture(texture[2], "images/grass.bmp");
+        
 
         for (int i = 0; i < enemies.size(); ++i)
         {

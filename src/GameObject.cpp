@@ -91,11 +91,13 @@ void GameObject::look_y_plane(float da)//float & refy, float & refz, float da)
 }
 void GameObject::move_xz_plane(float dp)
 {
+    
     x_ += dp * dir_[0];
     // y_ += dp * dir_[1];
     z_ += dp * dir_[1];
+    
 }
-void GameObject::draw_object(float scalex, float scaley, float scalez) const
+void GameObject::draw_object(float scalex, float scaley, float scalez) 
 {
     //float r = (dir_[0] * dir_[0]) + (dir_[1] * dir_[1]) + (dir_[2] * dir_[2]);
         
@@ -124,8 +126,64 @@ void GameObject::draw_object(float scalex, float scaley, float scalez) const
     glPopMatrix();
 }
 
+void First_Person::draw_object(float scalex, float scaley, float scalez) 
+{
+    glPushMatrix();
+    {
+        glTranslatef(x_, y_, z_);
+        glRotatef(-get_angle(dir_[0], dir_[1]), 0, 1, 0);
+        
+        glScalef(scalex, scaley, scalez);
+        // std::cout << x_ << ' ' << z_ << std::endl;
+        // std::cout << "angle: " << get_angle(dir_[0], dir_[2]) << std::endl;
+        
+        glPushMatrix();
+        {
+            glRotatef(90, 0, 1, 0);
+            glTranslatef(0, 1, 0);
+            draw_cylinder(0.1, 0.5);
+        }
+        glPopMatrix();
+        glScalef(w_, h_, l_);
+        glTranslatef(-w_/2, 0, 0);
+        glColor3f(r_, g_, b_);
+        glutSolidCube(1);
+
+    }
+    glPopMatrix();
+
+        for (auto p: amo)
+        {
+            glPushMatrix();
+            {
+                p->draw_object();
+            }
+            glPopMatrix();
+        }
+   
+}
+
+void Bullet::draw_object(float x, float y, float z)
+{
+    glPushMatrix();
+    {
+        glTranslatef(x_, y_, z_);
+        
+        glScalef(x, y, z);
+            
+        //glScalef(w_, h_, l_);
+        //glTranslatef(-w_/2, 0, 0);
+        glColor3f(1.0, 0, 0);
+        glutSolidSphere(0.3, 20, 20);
+        // glutSolidCube(1);
+
+    }
+    glPopMatrix();
+}
+
 void Enemies::draw_enemy()
 {
+    if (state_ == -1) return;
     glPushMatrix();
     {
         //glScalef(position_scale[0], 1, position_scale[1]);

@@ -10,6 +10,34 @@ using namespace Global;
 
 namespace Util
 {
+    void build_grass(float scalex, float scaley, float scalez)
+    {
+        glEnable(GL_TEXTURE_2D);
+        
+        //build_cube();
+        // glRotatef(xangle, 1.0, 0.0, 0.0); 
+        // glRotatef(yangle, 0.0, 1.0, 0.0); 
+        glScalef(scalex, scaley, scalez);
+        //glutSolidCube(1);
+        // Select texture with id texture[id]
+        glBindTexture(GL_TEXTURE_2D, texture[2]);
+
+        // Choose GL_REPLACE or GL_MODULATE
+        if (env == 0)
+            glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+        else
+            glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+    
+        glBegin(GL_POLYGON);
+        {
+            //glColor3f(0, 1, 0); //??
+            glTexCoord2f(0.0, 0.0); glVertex3f( 0.5, -0.5,  0.5);
+            glTexCoord2f(1.0, 0.0); glVertex3f(-0.5, -0.5,  0.5);
+            glTexCoord2f(1.0, 1.0); glVertex3f(-0.5, -0.5, -0.5);
+            glTexCoord2f(0.0, 1.0); glVertex3f( 0.5, -0.5, -0.5);
+        }
+        glEnd();
+    }
     void build_wall(float scalex, float scaley, float scalez)
     {
         glEnable(GL_TEXTURE_2D);

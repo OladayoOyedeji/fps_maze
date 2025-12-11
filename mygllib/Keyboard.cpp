@@ -17,12 +17,11 @@ void mygllib::Keyboard::keyboard(unsigned char key, int w, int h)
     bool reset = false;
      switch(key) 
     {
-        case 'a': person.look_xz_plane(0.05); reset = true; break;
-        case 'w': person.look_y_plane(0.1); reset = true; break;
-        case 's': person.look_y_plane(-0.1); reset = true; break;
-        case 'd': person.look_xz_plane(-0.05); reset = true; break;
-        case 'i': person.move_xz_plane(-0.5); reset = true; break;
-        case 'k': person.move_xz_plane(0.5); reset = true; break;
+        
+        // case 's': person.look_y_plane(-0.1); reset = true; break;
+        // case 'd': person.look_xz_plane(-0.05); reset = true; break;
+        
+        case 'w': person.move_xz_plane(0.5); reset = true; break;
         case 'm': maze.mode = !maze.mode; reset = true; break;
             //case 'u': enemy.run(); reset = true; break;
             
@@ -45,8 +44,9 @@ void mygllib::Keyboard::keyboard(unsigned char key, int w, int h)
         case '7': person.change_view(); reset = true; break;
     
         case ' ':
-            ++id; id = (id > 2 ? 0 : id);
-            reset = true;
+            // ++id; id = (id > 2 ? 0 : id);
+            // reset = true;
+            person.shoot();
             break;
         case 127: // delete key
             xangle = 0.0;

@@ -180,7 +180,7 @@ public:
         return float(c0.r_ + c1.r_)/2;
     }
     
-    float y() const
+    float z() const
     {
         return float(c0.c_ + c1.c_)/2;
     }
@@ -189,6 +189,19 @@ public:
     {
         float c = float(c1.c_ + c0.c_) / 2;
         float r = float(c1.r_ + c0.r_) / 2;
+        glPushMatrix();
+        {
+            glTranslatef(c1.r_, 1.5, c1.c_);
+            Util::build_grass(1, h_, 1);
+        }
+        glPopMatrix();
+        
+        glPushMatrix();
+        {
+            glTranslatef(c0.r_, 1.5, c0.c_);
+            Util::build_grass(1, h_, 1);
+        }
+        glPopMatrix();
         glPushMatrix();
         {
             glTranslatef(r, 1.5, c);
@@ -212,7 +225,7 @@ class Maze
 {
 public:
     Maze(int n=20, float sx=1, float sy=1, float sz=1);
-    void draw_maze(int r = 0, int c = 0);
+    void draw_maze(float r = 0, float c = 0, int dr=1, int dc=0);
     float scalex_;
     float scaley_;
     float scalez_;

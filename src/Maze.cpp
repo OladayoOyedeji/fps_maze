@@ -205,22 +205,23 @@ void print_maze(int n, const std::vector<Wall> & p)
     }
 }
 
-void Maze::draw_maze(int r, int c)
+void Maze::draw_maze(float r, float c, int dr, int dc)
 {
     if (mode)
     {
-        std::cout << "this " << r << ' ' << c << std::endl;
-        r /= scalex_;
-        c /= scalez_;
-        Cell * node = Map[r][c];
+        int x = (r+5) / scalex_;
+        int y = (c+5) / scalez_;
+        // std::cout << x << ' ' << y << std::endl;
+        Cell * node = Map[x][y];
         std::stack< Wall > draw_walls;
     
-        view_recur(node, 1, 0, draw_walls, 0);
-        view_recur(node, -1, 0, draw_walls, 0);
-        view_recur(node, 0, 1, draw_walls, 0);
-         view_recur(node, 0, -1, draw_walls, 0);
+        view_recur(node, dr, 0, draw_walls, 0);
+        view_recur(node, 0, dc, draw_walls, 0);
+        // view_recur(node, -1, 0, draw_walls, 0);
+        // view_recur(node, 0, 1, draw_walls, 0);
+        //  view_recur(node, 0, -1, draw_walls, 0);
     
-        glPushMatrix();
+        glPushMatrix(); 
         {
             glScalef(scalex_, scaley_, scalez_);
             // std::cout << "starting\n";
@@ -258,32 +259,21 @@ void view_recur(Cell * node, int dr, int dc,
 {
     for (int i = 0; i < 4; ++i)
     {
-        // std::cout << i << std::endl;
         Cell c = Cell::diff(i);
         
         if (c + Cell(dr, dc) == Cell(0, 0))
             continue;
         
         Cell * next_node = node->neigbhor(i);
-        // std::cout << "next->: " << next_node << std::endl;
         
-        // std::cout << "nodes: " << *node;
-        // if (next_node != NULL)
-        // {
-        //     std::cout << ' ' << *next_node << ' ';
-        // }
-        // std::cout << *node + c << std::endl;
         if (next_node == NULL)
         {
-            // std::cout << "here?" << std::endl;
             Cell next_cell = *node + c;
             walls.push(Wall(*node, next_cell, .2, 3, 1));
-            // std::cout << Wall(*node, next_cell) << std::endl;
         }
         else
         {
             int flag_ = dr * c.c_  - dc * c.r_;
-            // std::cout << "flag: " << flag_  << " Cells: " << Cell(dr, dc) << ' ' << c << std::endl;
             if (flag_ != flag || flag_ == 0)
             {
                 view_recur(next_node, c.r_, c.c_, walls, flag_);
