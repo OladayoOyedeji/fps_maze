@@ -215,8 +215,8 @@ void Maze::draw_maze(float r, float c, int dr, int dc)
         Cell * node = Map[x][y];
         std::stack< Wall > draw_walls;
     
-        view_recur(node, dr, 0, draw_walls, 0);
-        view_recur(node, 0, dc, draw_walls, 0);
+        view_recur(node, 0, 0, draw_walls, 0);
+        //view_recur(node, 0, dc, draw_walls, 0);
         // view_recur(node, -1, 0, draw_walls, 0);
         // view_recur(node, 0, 1, draw_walls, 0);
         //  view_recur(node, 0, -1, draw_walls, 0);
@@ -276,6 +276,8 @@ void view_recur(Cell * node, int dr, int dc,
             int flag_ = dr * c.c_  - dc * c.r_;
             if (flag_ != flag || flag_ == 0)
             {
+                if (flag_ == 0)
+                    flag_ = flag;
                 view_recur(next_node, c.r_, c.c_, walls, flag_);
                 // if ()
             }

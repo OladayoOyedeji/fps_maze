@@ -99,7 +99,7 @@ void animate(int somevalue)
             Cell next_node = *node + c;
             if (person.collide_wall(Wall(*node, next_node, .2, 3, 1), maze))
             {
-                person.move_xz_plane(-1);
+                person.move_xz_plane(-2);
             }
         }
     }
