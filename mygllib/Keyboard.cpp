@@ -23,14 +23,6 @@ void mygllib::Keyboard::keyboard(unsigned char key, int w, int h)
         
         case 'w': person.move_xz_plane(0.5); reset = true; break;
         case 'm': maze.mode = !maze.mode; reset = true; break;
-            //case 'u': enemy.run(); reset = true; break;
-            
-        case 'x': view.eyex() -= 0.1; reset = true; break;
-        case 'X': view.eyex() += 0.1; reset = true; break;
-        case 'y': view.eyey() -= 0.1; reset = true; break;
-        case 'Y': view.eyey() += 0.1; reset = true; break;
-        case 'z': view.eyez() -= 0.1; reset = true; break;
-        case 'Z': view.eyez() += 0.1; reset = true; break;
             
         case 'r': y_axis_angle += 1; reset = true; break;
         case 'R': y_axis_angle -= 1; reset = true; break;
